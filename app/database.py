@@ -33,17 +33,32 @@ async def add_item_db(data):
     db.commit()
     
     
-async def get_data(type):
-    data = cur.execute('SELECT photo, name, brand, desc, price FROM items WHERE type = ?', (type,)).fetchall()
+async def get_data_by_type(type):
+    data = cur.execute('SELECT i_id, type, name, brand, desc, price, photo FROM items WHERE type = ?', (type,)).fetchall()
     return data
 
 
-async def update_item_db(id, data):
+async def get_data_by_id(id):
+    data = cur.execute('SELECT i_id, type, name, brand, desc, price, photo FROM items WHERE i_id = ?', (id,)).fetchone()
+    return data
+
+
+async def update_item_db(data):
     cur.execute('UPDATE items SET type = ?, name = ?, desc = ?, price = ?, photo = ?, brand = ? WHERE i_id = ?', 
-                (data["type"], data["name"], data["desc"], data["price"], data["photo"], data["brand"], id))
+                (data["type"], data["name"], data["desc"], data["price"], data["photo"], data["brand"], data["id"]))
     db.commit()
     
 
 async def delete_item_db(id):
     cur.execute('DELETE FROM items WHERE i_id = ?', (id,))
     db.commit()
+    
+    
+async def add_item_to_cart_db(user_id, item_id):
+    cur.execute('UPDATE users SET cart_id = ? WHERE user_id = ?', (item_id, user_id))
+    db.commit()
+    
+    
+async def get_user_data_by_user_id(user_id):
+    data = cur.execute('SELECT * FROM users WHERE user_id = ?', (user_id,)).fetchone()
+    return data

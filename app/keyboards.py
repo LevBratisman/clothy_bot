@@ -62,12 +62,21 @@ admin_panel = ReplyKeyboardMarkup(
 
 catalog = InlineKeyboardMarkup(inline_keyboard=[
     [
-        InlineKeyboardButton(text="Обувь", callback_data="shoes")
+        InlineKeyboardButton(text="Обувь", callback_data="обувь")
     ],
     [
-        InlineKeyboardButton(text="Одежда", callback_data="clothes")
+        InlineKeyboardButton(text="Одежда", callback_data="одежда")
     ],
     [
-        InlineKeyboardButton(text="Головные уборы", callback_data="headdress")
+        InlineKeyboardButton(text="Головные уборы", callback_data="головные уборы")
+    ]
+])
+
+item = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(text="Добавить в избранное", callback_data="to_favorite")
+    ],
+    [
+        InlineKeyboardButton(text="Добавить в корзину", callback_data="to_cart")
     ]
 ])
