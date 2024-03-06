@@ -18,6 +18,17 @@ async def db_start():
                 "price INTEGER, "
                 "photo TEXT, "
                 "brand TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS orders("
+                "o_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "date_order DATETIME DEFAULT CURRENT_TIMESTAMP, "
+                "order_items TEXT, "
+                "full_name TEXT, "
+                "user_id INTEGER, "
+                "adress TEXT, "
+                "phone TEXT, "
+                "email TEXT, "
+                "total_cost INTEGER, "
+                "FOREIGN KEY (user_id) REFERENCES users (id))")
     db.commit()
     
 async def cmd_start_db(user_id, user_name):
@@ -48,6 +59,11 @@ async def update_item_db(data):
                 (data["type"], data["name"], data["desc"], data["price"], data["photo"], data["brand"], data["id"]))
     db.commit()
     
+    
+async def update_cart_id(user_id, cart):
+    cur.execute('UPDATE users SET cart_id = ? WHERE user_id = ?', (cart, user_id))
+    db.commit()
+    
 
 async def delete_item_db(id):
     cur.execute('DELETE FROM items WHERE i_id = ?', (id,))
@@ -62,3 +78,9 @@ async def add_item_to_cart_db(user_id, item_id):
 async def get_user_data_by_user_id(user_id):
     data = cur.execute('SELECT * FROM users WHERE user_id = ?', (user_id,)).fetchone()
     return data
+
+
+async def add_order_db(data):
+    cur.execute('INSERT INTO orders (order_items, full_name, user_id, adress, phone, email, total_cost) VALUES (?, ?, ?, ?, ?, ?, ?)', 
+                (data["order"], data["full_name"], data["user_id"], data["adress"], data["phone"], data["email"], data["total_cost"]))
+    db.commit()

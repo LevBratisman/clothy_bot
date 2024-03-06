@@ -6,7 +6,6 @@ start_keyboard = ReplyKeyboardMarkup(
             KeyboardButton(text="Каталог")
         ],
         [
-            KeyboardButton(text="Избранное"),
             KeyboardButton(text="Корзина")
         ],
         [
@@ -23,7 +22,6 @@ start_admin_keyboard = ReplyKeyboardMarkup(
             KeyboardButton(text="Каталог")
         ],
         [
-            KeyboardButton(text="Избранное"),
             KeyboardButton(text="Корзина")
         ],
         [
@@ -54,7 +52,34 @@ admin_panel = ReplyKeyboardMarkup(
         ]
     ],
     resize_keyboard=True,
-    input_field_placeholder='Выберите пункт меню.'
+    input_field_placeholder='Выберите действие.'
+)
+
+cart = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Оформить заказ"),
+        ],
+        [
+            KeyboardButton(text="Назад")
+        ]
+    ],
+    resize_keyboard=True,
+    input_field_placeholder='Выберите действие.'
+)
+
+
+cancel_order = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Отменить заказ"),
+        ],
+        [
+            KeyboardButton(text="Оформить заново"),
+        ]
+    ],
+    resize_keyboard=True,
+    input_field_placeholder='Оформление заказа...'
 )
 
 
@@ -74,9 +99,18 @@ catalog = InlineKeyboardMarkup(inline_keyboard=[
 
 item = InlineKeyboardMarkup(inline_keyboard=[
     [
-        InlineKeyboardButton(text="Добавить в избранное", callback_data="to_favorite")
-    ],
-    [
         InlineKeyboardButton(text="Добавить в корзину", callback_data="to_cart")
+    ]
+])
+
+item_in_cart = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(text="Убрать из корзины", callback_data="from_cart")
+    ]
+])
+
+confirm = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(text="Подтвердить", callback_data="confirm_order")
     ]
 ])

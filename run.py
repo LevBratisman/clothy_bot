@@ -9,6 +9,7 @@ from dotenv import find_dotenv, load_dotenv
 from app.handlers.user_private import user_private_router
 from app.handlers.catalog import catalog_router
 from app.handlers.admin import admin_router
+from app.handlers.cart import cart_router
 from app.database import db_start
 
 
@@ -24,6 +25,7 @@ async def on_startup():
 
 async def main():
     dp.include_router(admin_router)
+    dp.include_router(cart_router)
     dp.include_router(catalog_router)
     dp.include_router(user_private_router)
     # await bot.set_my_commands(private)
