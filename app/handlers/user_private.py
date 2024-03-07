@@ -35,7 +35,7 @@ async def contacts(message: Message):
     await message.answer(message.sticker.file_id)
         
     
-@user_private_router.message(F.text == "Контакты")
+@user_private_router.message(F.text == "👨‍💻Контакты")
 async def contacts(message: Message):
     await message.answer(f"По всем вопросам обращайтесь к @bratisman")
     

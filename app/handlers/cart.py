@@ -28,7 +28,7 @@ class NewOrder(StatesGroup):
     
     
     
-@cart_router.message(F.text == "Отменить заказ")
+@cart_router.message(F.text == "🚫Отменить заказ")
 async def cancel_order(message: Message, state: FSMContext):
     await state.clear()
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
@@ -37,15 +37,15 @@ async def cancel_order(message: Message, state: FSMContext):
         await message.answer("Меню", reply_markup=keyboards.start_keyboard)
         
         
-@cart_router.message(F.text == "Оформить заново")
+@cart_router.message(F.text == "🔁Оформить заново")
 async def reset_order(message: Message, state: FSMContext):
     await state.clear()
     await cart(message, state)
 
 
-@cart_router.message(F.text == "Оформить заказ")
+@cart_router.message(F.text == "📦Оформить заказ")
 async def cart(message: Message, state: FSMContext):
-    await message.answer("Ваш заказ:", reply_markup=keyboards.cancel_order)
+    await message.answer("▫️Ваш заказ:", reply_markup=keyboards.cancel_order)
     data = await get_user_data_by_user_id(message.from_user.id)
     cart = data[4]
     order = []
@@ -62,7 +62,7 @@ async def cart(message: Message, state: FSMContext):
             await message.answer(f'{i + 1}. <b>Название</b>: {item[2]}\n' +
                                  f'    <b>Цена</b>: {item[5]}', parse_mode='HTML')
         order = ', '.join(order)
-        await message.answer(f'<b>Итого</b>: {total_cost} ₽\n' +
+        await message.answer(f'<b>💰Итого</b>: {total_cost} ₽\n' +
                              f'----------------\n', parse_mode='HTML')
         
         await state.update_data(user_id=data[0])
@@ -99,14 +99,14 @@ async def set_full_name(message: Message, state: FSMContext):
 async def set_full_name(message: Message, state: FSMContext):
     await state.update_data(email=message.text)
     data = await state.get_data()
-    await message.answer("Информация о заказе:")
-    await message.answer(f'ФИО: {data["full_name"]}\n' +
-                         f'Адрес доставки: {data["adress"]}\n' +
-                         f'Телефон: {data["phone"]}\n' +
-                         f'Email: {data["email"]}\n' +
-                         f'Товары(код товара): {data["order"]}\n' +
-                         f'Итого: {data["total_cost"]} ₽\n' +
-                         f'----------------\n')
+    await message.answer("🔸Информация о заказе:")
+    await message.answer(f'<b>ФИО:</b> {data["full_name"]}\n' +
+                         f'<b>Адрес доставки:</b> {data["adress"]}\n' +
+                         f'<b>Телефон:</b> {data["phone"]}\n' +
+                         f'<b>Email:</b> {data["email"]}\n' +
+                         f'<b>Товары(код товара):</b> {data["order"]}\n' +
+                         f'<b>Итого:</b> {data["total_cost"]} ₽\n' +
+                         f'----------------\n', parse_mode='HTML')
     await message.answer("Подтвердите заказ", reply_markup=keyboards.confirm)
 
     
@@ -126,10 +126,10 @@ async def confirm_order(callback: CallbackQuery, state: FSMContext, bot: Bot):
                             description='Тестовый платеж',
                             provider_token=TOKEN,
                             currency='rub',
-                            photo_url='https://www.aroged.com/wp-content/uploads/2022/06/Telegram-has-a-premium-subscription.jpg',
-                            photo_height=512,  # !=0/None, иначе изображение не покажется
-                            photo_width=512,
-                            photo_size=512,
+                            photo_url='https://runamagik.ru/wp-content/uploads/2023/12/JxUtcBpNOfM.jpg',
+                            photo_height=1280,  # !=0/None, иначе изображение не покажется
+                            photo_width=1026,
+                            photo_size=1000,
                             is_flexible=False,  # True если конечная цена зависит от способа доставки
                             prices=[PRICE],
                             start_parameter='time-machine-example',
@@ -138,13 +138,15 @@ async def confirm_order(callback: CallbackQuery, state: FSMContext, bot: Bot):
     )
     await state.clear()
     if callback.from_user.id == int(os.getenv('ADMIN_ID')):
-        await callback.message.answer(f'Заказ оформлен!\n' +
-                                  f'В данном боте используется тестовая система платежей. Она не работает!',
-                                  reply_markup=keyboards.start_admin_keyboard)
+        await callback.message.answer_sticker('CAACAgIAAx0Cd9gAAe8AAypl6eHRwL3TUQhDivk2zOnK4Zqz-wACHAEAAjDUnRFu6owpqq4XTjQE')
+        await asyncio.sleep(1)
+        await callback.message.answer(f'Заказ оформлен! Товар уже в пути\n' +
+                                  f'‼️В данном боте используется тестовая система платежей. Она не работает!',
+                                  reply_markup=keyboards.start_admin_keyboard, show_alert=True)
     else:
         await callback.message.answer(f'Заказ оформлен!\n' +
-                                  f'В данном боте используется тестовая система платежей. Она не работает!',
-                                  reply_markup=keyboards.start_keyboard)
+                                  f'‼️В данном боте используется тестовая система платежей. Она не работает!',
+                                  reply_markup=keyboards.start_keyboard, show_alert=True)
     
     
     

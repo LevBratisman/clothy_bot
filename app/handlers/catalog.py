@@ -13,12 +13,12 @@ from app.database import get_data_by_type, get_user_data_by_user_id, add_item_to
 
 catalog_router = Router()
 
-@catalog_router.message(F.text == "Каталог")
+@catalog_router.message(F.text == "🛄Каталог")
 async def catalog(message: Message):
     await message.answer("Выберите категорию", reply_markup=keyboards.catalog)
 
 
-@catalog_router.message(F.text == "Назад")
+@catalog_router.message(F.text == "⬅️Назад")
 async def back_to_manu(message: Message):
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
         await message.answer("Меню", reply_markup=keyboards.start_admin_keyboard)
@@ -27,7 +27,7 @@ async def back_to_manu(message: Message):
     
 
     
-@catalog_router.message(F.text == "Корзина")
+@catalog_router.message(F.text == "🛒Корзина")
 async def basket(message: Message):
     data = await get_user_data_by_user_id(message.from_user.id)
     prev_cart = data[4]
@@ -37,14 +37,14 @@ async def basket(message: Message):
         prev_cart = prev_cart.split(', ')
         for i in range(len(prev_cart)):
             item = await get_data_by_id(int(prev_cart[i]))
-            await message.answer_photo(item[6], caption=f'<b>Код товара</b>: {item[0]}\n' +
-                                                        f'<b>Тип</b>: {item[1]}\n' + 
-                                                        f'<b>Название</b>: {item[2]}\n' +
-                                                        f'<b>Бренд</b>: {item[3]}\n' + 
-                                                        f'<b>Описание</b>: {item[4]}\n' + 
-                                                        f'<b>Цена</b>: {item[5]}', parse_mode='HTML',
+            await message.answer_photo(item[6], caption=f'<b>#️⃣Код товара</b>: {item[0]}\n' +
+                                                        f'<b>🏷Тип</b>: {item[1]}\n' + 
+                                                        f'<b>🔤Название</b>: {item[2]}\n' +
+                                                        f'<b>🌐Бренд</b>: {item[3]}\n' + 
+                                                        f'<b>📝Описание</b>: {item[4]}\n' + 
+                                                        f'<b>💰Цена</b>: {item[5]}', parse_mode='HTML',
                                                         reply_markup=keyboards.item_in_cart)
-        await message.answer('Ваша корзина', reply_markup=keyboards.cart)
+        await message.answer('Теперь вы можете оформить заказ', reply_markup=keyboards.cart)
 
     
     
@@ -55,16 +55,17 @@ async def get_shoes(callback: Message):
     if data == []:
         await callback.message.answer("Пусто..")
     else:
+        await callback.message.edit_text('Обувь')
         await callback.message.answer('Загружаю товар...')
         await asyncio.sleep(1)
         for item in range(len(data)):
             await asyncio.sleep(0.3)
-            await callback.message.answer_photo(data[item][6], caption=f'<b>Код товара</b>: {data[item][0]}\n' +
-                                                                        f'<b>Тип</b>: {data[item][1]}\n' + 
-                                                                        f'<b>Название</b>: {data[item][2]}\n' +
-                                                                        f'<b>Бренд</b>: {data[item][3]}\n' + 
-                                                                        f'<b>Описание</b>: {data[item][4]}\n' +
-                                                                        f'<b>Цена</b>: {data[item][5]}', parse_mode='HTML',
+            await callback.message.answer_photo(data[item][6], caption=f'<b>#️⃣Код товара</b>: {data[item][0]}\n' +
+                                                                        f'<b>🏷Тип</b>: {data[item][1]}\n' + 
+                                                                        f'<b>🔤Название</b>: {data[item][2]}\n' +
+                                                                        f'<b>🌐Бренд</b>: {data[item][3]}\n' + 
+                                                                        f'<b>📝Описание</b>: {data[item][4]}\n' +
+                                                                        f'<b>💰Цена</b>: {data[item][5]}', parse_mode='HTML',
                                                                         reply_markup=keyboards.item)
 
     
@@ -75,17 +76,19 @@ async def get_clothes(callback: Message):
     if data == []:
         await callback.message.answer("Пусто..")
     else:
+        await callback.message.edit_text('Одежда')
         await callback.message.answer('Загружаю товар...')
         await asyncio.sleep(1)
         for item in range(len(data)):
             await asyncio.sleep(0.3)
-            await callback.message.answer_photo(data[item][6], caption=f'<b>Код товара</b>: {data[item][0]}\n' +
-                                                                        f'<b>Тип</b>: {data[item][1]}\n' + 
-                                                                        f'<b>Название</b>: {data[item][2]}\n' +
-                                                                        f'<b>Бренд</b>: {data[item][3]}\n' + 
-                                                                        f'<b>Описание</b>: {data[item][4]}\n' +
-                                                                        f'<b>Цена</b>: {data[item][5]}', parse_mode='HTML',
+            await callback.message.answer_photo(data[item][6], caption=f'<b>#️⃣Код товара</b>: {data[item][0]}\n' +
+                                                                        f'<b>🏷Тип</b>: {data[item][1]}\n' + 
+                                                                        f'<b>🔤Название</b>: {data[item][2]}\n' +
+                                                                        f'<b>🌐Бренд</b>: {data[item][3]}\n' + 
+                                                                        f'<b>📝Описание</b>: {data[item][4]}\n' +
+                                                                        f'<b>💰Цена</b>: {data[item][5]}', parse_mode='HTML',
                                                                         reply_markup=keyboards.item)
+        
     
     
 @catalog_router.callback_query(F.data == "головные уборы")
@@ -95,16 +98,17 @@ async def get_headdress(callback: Message):
     if data == []:
         await callback.message.answer("Пусто..")
     else:
+        await callback.message.edit_text('Головные уборы')
         await callback.message.answer('Загружаю товар...')
         await asyncio.sleep(1)
         for item in range(len(data)):
             await asyncio.sleep(0.3)
-            await callback.message.answer_photo(data[item][6], caption=f'<b>Код товара</b>: {data[item][0]}\n' +
-                                                                        f'<b>Тип</b>: {data[item][1]}\n' + 
-                                                                        f'<b>Название</b>: {data[item][2]}\n' +
-                                                                        f'<b>Бренд</b>: {data[item][3]}\n' + 
-                                                                        f'<b>Описание</b>: {data[item][4]}\n' +
-                                                                        f'<b>Цена</b>: {data[item][5]}', parse_mode='HTML',
+            await callback.message.answer_photo(data[item][6], caption=f'<b>#️⃣Код товара</b>: {data[item][0]}\n' +
+                                                                        f'<b>🏷Тип</b>: {data[item][1]}\n' + 
+                                                                        f'<b>🔤Название</b>: {data[item][2]}\n' +
+                                                                        f'<b>🌐Бренд</b>: {data[item][3]}\n' + 
+                                                                        f'<b>📝Описание</b>: {data[item][4]}\n' +
+                                                                        f'<b>💰Цена</b>: {data[item][5]}', parse_mode='HTML',
                                                                         reply_markup=keyboards.item)
             
             
@@ -142,10 +146,16 @@ async def del_item_from_cart(callback: CallbackQuery):
     
     if len(cart) == 0:
         cart = None
+        await update_cart_id(callback.from_user.id, cart)
+        await callback.message.delete()
+        await callback.answer("Товар удален из корзины!")
+        if callback.from_user.id == int(os.getenv('ADMIN_ID')):
+            await callback.message.answer("Корзина пуста", reply_markup=keyboards.start_admin_keyboard)
+        else:
+            await callback.message.answer("Корзина пуста" , reply_markup=keyboards.start_keyboard)
     else:
         cart = ', '.join(cart)
-        
-    await update_cart_id(callback.from_user.id, cart)
-    await callback.message.delete()
-    await callback.answer("Товар удален из корзину!")
+        await update_cart_id(callback.from_user.id, cart)
+        await callback.message.delete()
+        await callback.answer("Товар удален из корзины!")
     

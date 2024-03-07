@@ -3,13 +3,13 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 start_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Каталог")
+            KeyboardButton(text="🛄Каталог")
         ],
         [
-            KeyboardButton(text="Корзина")
+            KeyboardButton(text="🛒Корзина")
         ],
         [
-            KeyboardButton(text="Контакты")
+            KeyboardButton(text="👨‍💻Контакты")
         ]
     ],
     resize_keyboard=True,
@@ -19,16 +19,16 @@ start_keyboard = ReplyKeyboardMarkup(
 start_admin_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Каталог")
+            KeyboardButton(text="🛄Каталог")
         ],
         [
-            KeyboardButton(text="Корзина")
+            KeyboardButton(text="🛒Корзина")
         ],
         [
-            KeyboardButton(text="Контакты")
+            KeyboardButton(text="👨‍💻Контакты")
         ],
         [
-            KeyboardButton(text="Админ-панель")
+            KeyboardButton(text="⚙️Админ-панель")
         ]
     ],
     resize_keyboard=True,
@@ -38,17 +38,18 @@ start_admin_keyboard = ReplyKeyboardMarkup(
 admin_panel = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Добавить товар"),
-            KeyboardButton(text="Удалить товар")
+            KeyboardButton(text="🆕Добавить товар"),
+            KeyboardButton(text="🚫Удалить товар")
         ],
         [
-            KeyboardButton(text="Изменить товар")
+            KeyboardButton(text="🔁Изменить товар")
         ],
         [
-            KeyboardButton(text="Сделать рассылку")
+            KeyboardButton(text="🔉Сделать рассылку"),
+            KeyboardButton(text="📊Статистика")
         ],
         [
-            KeyboardButton(text="Назад")
+            KeyboardButton(text="⬅️Назад")
         ]
     ],
     resize_keyboard=True,
@@ -58,10 +59,10 @@ admin_panel = ReplyKeyboardMarkup(
 cart = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Оформить заказ"),
+            KeyboardButton(text="📦Оформить заказ"),
         ],
         [
-            KeyboardButton(text="Назад")
+            KeyboardButton(text="⬅️Назад")
         ]
     ],
     resize_keyboard=True,
@@ -72,10 +73,10 @@ cart = ReplyKeyboardMarkup(
 cancel_order = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Отменить заказ"),
+            KeyboardButton(text="🚫Отменить заказ"),
         ],
         [
-            KeyboardButton(text="Оформить заново"),
+            KeyboardButton(text="🔁Оформить заново"),
         ]
     ],
     resize_keyboard=True,
@@ -87,30 +88,30 @@ cancel_order = ReplyKeyboardMarkup(
 
 catalog = InlineKeyboardMarkup(inline_keyboard=[
     [
-        InlineKeyboardButton(text="Обувь", callback_data="обувь")
+        InlineKeyboardButton(text="👟Обувь", callback_data="обувь")
     ],
     [
-        InlineKeyboardButton(text="Одежда", callback_data="одежда")
+        InlineKeyboardButton(text="🎽Одежда", callback_data="одежда")
     ],
     [
-        InlineKeyboardButton(text="Головные уборы", callback_data="головные уборы")
+        InlineKeyboardButton(text="🧢Головные уборы", callback_data="головные уборы")
     ]
 ])
 
 item = InlineKeyboardMarkup(inline_keyboard=[
     [
-        InlineKeyboardButton(text="Добавить в корзину", callback_data="to_cart")
+        InlineKeyboardButton(text="📌Добавить в корзину", callback_data="to_cart")
     ]
 ])
 
 item_in_cart = InlineKeyboardMarkup(inline_keyboard=[
     [
-        InlineKeyboardButton(text="Убрать из корзины", callback_data="from_cart")
+        InlineKeyboardButton(text="🚫Убрать из корзины", callback_data="from_cart")
     ]
 ])
 
 confirm = InlineKeyboardMarkup(inline_keyboard=[
     [
-        InlineKeyboardButton(text="Подтвердить", callback_data="confirm_order")
+        InlineKeyboardButton(text="🆗Подтвердить", callback_data="confirm_order")
     ]
 ])

@@ -84,3 +84,20 @@ async def add_order_db(data):
     cur.execute('INSERT INTO orders (order_items, full_name, user_id, adress, phone, email, total_cost) VALUES (?, ?, ?, ?, ?, ?, ?)', 
                 (data["order"], data["full_name"], data["user_id"], data["adress"], data["phone"], data["email"], data["total_cost"]))
     db.commit()
+    
+    
+async def get_users_id():
+    data = cur.execute('SELECT user_id FROM users').fetchall()
+    return data
+    
+async def get_users_db_ten():
+    data = cur.execute('SELECT * FROM users LIMIT 10').fetchall()
+    return data    
+    
+async def get_orders_db():
+    data = cur.execute('SELECT * FROM orders').fetchall()
+    return data
+
+async def get_items_db():
+    data = cur.execute('SELECT * FROM items').fetchall()
+    return data
