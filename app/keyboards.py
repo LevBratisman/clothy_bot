@@ -49,7 +49,8 @@ admin_panel = ReplyKeyboardMarkup(
             KeyboardButton(text="📊Статистика")
         ],
         [
-            KeyboardButton(text="⬅️Назад")
+            KeyboardButton(text="⬅️Назад"),
+            KeyboardButton(text="🔄Сбросить")
         ]
     ],
     resize_keyboard=True,
@@ -97,6 +98,59 @@ catalog = InlineKeyboardMarkup(inline_keyboard=[
         InlineKeyboardButton(text="🧢Головные уборы", callback_data="головные уборы")
     ]
 ])
+
+
+subtype_shoes = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(text="Спортивная обувь", callback_data="спорт обувь")
+    ],
+    [
+        InlineKeyboardButton(text="Зимняя обувь", callback_data="зимняя обувь")
+    ],
+    [
+        InlineKeyboardButton(text="Классическая обувь", callback_data="класс обувь")
+    ],
+    [
+        InlineKeyboardButton(text="Не важно", callback_data="nomatter")
+    ]
+])
+
+subtype_clothes = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(text="Спортивная одежда", callback_data="спорт одежда")
+    ],
+    [
+        InlineKeyboardButton(text="Куртки", callback_data="куртки")
+    ],
+    [
+        InlineKeyboardButton(text="Брюки", callback_data="брюки")
+    ],
+    [
+        InlineKeyboardButton(text="Рубашки", callback_data="рубашки")
+    ],
+    [
+        InlineKeyboardButton(text="Футболки", callback_data="футболки")
+    ],
+    [
+        InlineKeyboardButton(text="Не важно", callback_data="nomatter")
+    ]
+])
+
+subtype_headdress = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(text="Кепки", callback_data="кепки")
+    ],
+    [
+        InlineKeyboardButton(text="Зимние шапки", callback_data="зимниешапки")
+    ],
+    [
+        InlineKeyboardButton(text="Шляпы", callback_data="шляпы")
+    ],
+    [
+        InlineKeyboardButton(text="Не важно", callback_data="nomatter")
+    ]
+])
+
 
 item = InlineKeyboardMarkup(inline_keyboard=[
     [

@@ -22,8 +22,9 @@ async def cmd_start(message: Message):
     await asyncio.sleep(1)
     await message.answer(f"Приветствую, {message.from_user.full_name}!")
     await asyncio.sleep(0.5)
-    await message.answer(f"Добро пожаловать в интернет-магазин Clothy!", 
-                         reply_markup=keyboards.start_keyboard)
+    await message.answer(f'Добро пожаловать в интернет-магазин <b>Clothy</b>!\n' +
+                         f'Для выбора товара перейдите в <b>КАТАЛОГ</b>⬇️', 
+                         reply_markup=keyboards.start_keyboard, parse_mode='HTML')
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
         await message.answer("Вы авторизировались как Администратор", 
                              reply_markup=keyboards.start_admin_keyboard)

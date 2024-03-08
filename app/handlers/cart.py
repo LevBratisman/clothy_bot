@@ -57,10 +57,10 @@ async def cart(message: Message, state: FSMContext):
         cart = cart.split(', ')
         for i in range(len(cart)):
             item = await get_data_by_id(int(cart[i]))
-            total_cost += int(item[5])
+            total_cost += int(item[6])
             order.append(str(item[0]))
-            await message.answer(f'{i + 1}. <b>Название</b>: {item[2]}\n' +
-                                 f'    <b>Цена</b>: {item[5]}', parse_mode='HTML')
+            await message.answer(f'{i + 1}. <b>Название</b>: {item[3]}\n' +
+                                 f'    <b>Цена</b>: {item[6]}', parse_mode='HTML')
         order = ', '.join(order)
         await message.answer(f'<b>💰Итого</b>: {total_cost} ₽\n' +
                              f'----------------\n', parse_mode='HTML')

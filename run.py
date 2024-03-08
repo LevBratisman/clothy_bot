@@ -10,7 +10,9 @@ from app.handlers.user_private import user_private_router
 from app.handlers.catalog import catalog_router
 from app.handlers.admin import admin_router
 from app.handlers.cart import cart_router
+from app.commands import cmd_router
 from app.database import db_start
+from app.commands import private
 
 
 load_dotenv(find_dotenv())
@@ -27,8 +29,9 @@ async def main():
     dp.include_router(admin_router)
     dp.include_router(cart_router)
     dp.include_router(catalog_router)
+    dp.include_router(cmd_router)
     dp.include_router(user_private_router)
-    # await bot.set_my_commands(private)
+    await bot.set_my_commands(private)
     await bot.delete_webhook(drop_pending_updates=True)
     await on_startup()
     await dp.start_polling(bot)

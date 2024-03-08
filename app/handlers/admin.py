@@ -7,7 +7,7 @@ import asyncio
 import os
 
 from app import keyboards
-from app.database import add_item_db, get_data_by_id, delete_item_db, update_item_db, get_users_id, get_orders_db, get_items_db, get_users_db_ten
+from app.database import update_cart_id, add_item_db, get_data_by_id, delete_item_db, update_item_db, get_users_id, get_orders_db, get_items_db, get_users_db_ten, get_users_db
 
 
 
@@ -16,6 +16,7 @@ admin_router = Router()
 
 class NewItem(StatesGroup):
     type = State()
+    subtype = State()
     name = State()
     desc = State()
     price = State()
@@ -26,6 +27,7 @@ class NewItem(StatesGroup):
 class UpdateItem(StatesGroup):
     id = State()
     type = State()
+    subtype = State()
     name = State()
     desc = State()
     price = State()
@@ -40,6 +42,13 @@ class DelItem(StatesGroup):
 class SendAll(StatesGroup):
     photo = State()
     message = State()
+    
+    
+@admin_router.message(F.text == "🔄Сбросить")
+async def back_to_manu(message: Message, state: FSMContext):
+    if message.from_user.id == int(os.getenv('ADMIN_ID')):
+        await message.answer("Изменения сброшены", reply_markup=keyboards.admin_panel)
+        await state.clear()
 
 
 @admin_router.message(F.text == "⬅️Назад")
@@ -79,8 +88,8 @@ async def get_statistic(message: Message):
 
 @admin_router.message(F.text == "🚫Удалить товар")
 async def back_to_manu(message: Message, state: FSMContext):
-    
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
+        await state.clear()
         await state.set_state(DelItem.id)
         await message.answer("Укажите код товара:")
         
@@ -94,6 +103,13 @@ async def back_to_manu(message: Message, state: FSMContext):
             await message.answer("Некорректный формат данных. Попробуйте ещё раз.")
         else:
             await message.answer("Товар был успешно удален!")
+            data = await get_users_db()
+            for i in range(len(data)):
+                cart = data[i][4].split(', ')
+                if message.text in cart:
+                    cart.remove(message.text)
+                    await update_cart_id(data[i][1], ', '.join(cart))
+            await message.answer("Товар был удален из корзин пользователей!")
             await state.clear()
         
         
@@ -103,6 +119,7 @@ async def back_to_manu(message: Message, state: FSMContext):
 @admin_router.message(F.text == "🔁Изменить товар")
 async def update_item(message: Message, state: FSMContext):
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
+        await state.clear()
         await state.set_state(UpdateItem.id)
         await message.answer("Укажите код изменяемого товара")
         
@@ -121,12 +138,28 @@ async def add_item_name(message: Message, state: FSMContext):
             update_item(message, state)
         else:
             await state.set_state(UpdateItem.type)
-            await message.answer("Теперь введите тип товара", reply_markup=keyboards.catalog)
+            await message.answer("Теперь выберите тип товара", reply_markup=keyboards.catalog)
         
         
 @admin_router.callback_query(UpdateItem.type)
 async def add_item_type(callback: CallbackQuery, state: FSMContext):
     await state.update_data(type=callback.data)
+    if callback.data == "обувь":
+        await state.set_state(UpdateItem.subtype)
+        await callback.message.answer("Теперь выберите подтип товара", 
+                                      reply_markup=keyboards.subtype_shoes)
+    elif callback.data == "одежда":
+        await state.set_state(UpdateItem.subtype)
+        await callback.message.answer("Теперь выберите подтип товара", 
+                                      reply_markup=keyboards.subtype_clothes)
+    elif callback.data == "головные уборы":
+        await state.set_state(UpdateItem.subtype)
+        await callback.message.answer("Теперь выберите подтип товара", 
+                                      reply_markup=keyboards.subtype_headdress)
+        
+@admin_router.callback_query(UpdateItem.subtype)
+async def add_item_type(callback: CallbackQuery, state: FSMContext):
+    await state.update_data(subtype=callback.data)
     await state.set_state(UpdateItem.name)
     await callback.message.answer("Теперь введите название")
     
@@ -176,6 +209,7 @@ async def add_item_photo(message: Message, state: FSMContext):
     await message.answer("Товар успешно изменен!")
     await message.answer_photo(data["photo"], caption=f'<b>#️⃣Код товара</b>: {data["id"]}\n' +
                                                                         f'<b>🏷Тип</b>: {data["type"]}\n' + 
+                                                                        f'<b>🔧Подтип</b>: {data["subtype"]}\n' +
                                                                         f'<b>🔤Название</b>: {data["name"]}\n' +
                                                                         f'<b>🌐Бренд</b>: {data["brand"]}\n' +
                                                                         f'<b>📝Описание</b>: {data["desc"]}\n' +
@@ -189,13 +223,30 @@ async def add_item_photo(message: Message, state: FSMContext):
 @admin_router.message(F.text == "🆕Добавить товар")
 async def back_to_manu(message: Message, state: FSMContext):
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
+        await state.clear()
         await state.set_state(NewItem.type)
         await message.answer("Выберите тип товара", reply_markup=keyboards.catalog)
-        
-        
+
+
 @admin_router.callback_query(NewItem.type)
 async def add_item_type(callback: CallbackQuery, state: FSMContext):
     await state.update_data(type=callback.data)
+    if callback.data == "обувь":
+        await state.set_state(NewItem.subtype)
+        await callback.message.answer("Теперь выберите подтип товара", 
+                                      reply_markup=keyboards.subtype_shoes)
+    elif callback.data == "одежда":
+        await state.set_state(NewItem.subtype)
+        await callback.message.answer("Теперь выберите подтип товара", 
+                                      reply_markup=keyboards.subtype_clothes)
+    elif callback.data == "головные уборы":
+        await state.set_state(NewItem.subtype)
+        await callback.message.answer("Теперь выберите подтип товара", 
+                                      reply_markup=keyboards.subtype_headdress)
+        
+@admin_router.callback_query(NewItem.subtype)
+async def add_item_type(callback: CallbackQuery, state: FSMContext):
+    await state.update_data(subtype=callback.data)
     await state.set_state(NewItem.name)
     await callback.message.answer("Теперь введите название")
     
@@ -244,6 +295,7 @@ async def add_item_photo(message: Message, state: FSMContext):
     await add_item_db(data)
     await message.answer("Товар успешно добавлен!")
     await message.answer_photo(data["photo"], caption=f'<b>🏷Тип</b>: {data["type"]}\n' + 
+                                                        f'<b>🔧Подтип</b>: {data["subtype"]}\n' +
                                                         f'<b>🔤Название</b>: {data["name"]}\n' +
                                                         f'<b>🌐Бренд</b>: {data["brand"]}\n' +
                                                         f'<b>📝Описание</b>: {data["desc"]}\n' +
@@ -258,6 +310,7 @@ async def add_item_photo(message: Message, state: FSMContext):
 @admin_router.message(F.text == "🔉Сделать рассылку")
 async def send_all(message: Message, state: FSMContext):
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
+        await state.clear()
         await state.set_state(SendAll.photo)
         await message.answer("Теперь отправьте фотографию (либо введите 'n', если пост будет без фотографии)")
     

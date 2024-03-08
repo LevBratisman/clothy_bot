@@ -13,6 +13,7 @@ async def db_start():
     cur.execute("CREATE TABLE IF NOT EXISTS items("
                 "i_id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 "type TEXT, "
+                "subtype TEXT, "
                 "name TEXT, "
                 "desc TEXT, "
                 "price INTEGER, "
@@ -38,25 +39,29 @@ async def cmd_start_db(user_id, user_name):
         db.commit()
         
         
+async def get_users_db():
+    data = cur.execute('SELECT * FROM users').fetchall()
+    return data        
+        
 async def add_item_db(data):
-    cur.execute('INSERT INTO items (type, name, desc, price, photo, brand) VALUES (?, ?, ?, ?, ?, ?)', 
-                (data["type"], data["name"], data["desc"], data["price"], data["photo"], data["brand"]))
+    cur.execute('INSERT INTO items (type, subtype, name, desc, price, photo, brand) VALUES (?, ?, ?, ?, ?, ?, ?)', 
+                (data["type"], data["subtype"], data["name"], data["desc"], data["price"], data["photo"], data["brand"]))
     db.commit()
     
     
 async def get_data_by_type(type):
-    data = cur.execute('SELECT i_id, type, name, brand, desc, price, photo FROM items WHERE type = ?', (type,)).fetchall()
+    data = cur.execute('SELECT i_id, type, subtype, name, brand, desc, price, photo FROM items WHERE type = ?', (type,)).fetchall()
     return data
 
 
 async def get_data_by_id(id):
-    data = cur.execute('SELECT i_id, type, name, brand, desc, price, photo FROM items WHERE i_id = ?', (id,)).fetchone()
+    data = cur.execute('SELECT i_id, type, subtype, name, brand, desc, price, photo FROM items WHERE i_id = ?', (id,)).fetchone()
     return data
 
 
 async def update_item_db(data):
-    cur.execute('UPDATE items SET type = ?, name = ?, desc = ?, price = ?, photo = ?, brand = ? WHERE i_id = ?', 
-                (data["type"], data["name"], data["desc"], data["price"], data["photo"], data["brand"], data["id"]))
+    cur.execute('UPDATE items SET type = ?, subtype = ?, name = ?, desc = ?, price = ?, photo = ?, brand = ? WHERE i_id = ?', 
+                (data["type"], data["subtype"], data["name"], data["desc"], data["price"], data["photo"], data["brand"], data["id"]))
     db.commit()
     
     
@@ -100,4 +105,10 @@ async def get_orders_db():
 
 async def get_items_db():
     data = cur.execute('SELECT * FROM items').fetchall()
+    return data
+
+
+
+async def get_item_by_type_subtype(type, subtype):
+    data = cur.execute('SELECT i_id, type, subtype, name, brand, desc, price, photo FROM items WHERE type = ? AND subtype = ?', (type, subtype)).fetchall()
     return data

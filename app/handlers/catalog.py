@@ -1,6 +1,8 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import CommandStart
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
+from aiogram.filters import CommandStart, Command
 from aiogram.enums import ContentType
 import json
 
@@ -8,14 +10,52 @@ import asyncio
 import os
 
 from app import keyboards
-from app.database import get_data_by_type, get_user_data_by_user_id, add_item_to_cart_db, get_data_by_id, update_cart_id
+from app.database import get_data_by_type, get_user_data_by_user_id, add_item_to_cart_db, get_data_by_id, update_cart_id, get_item_by_type_subtype
 
 
 catalog_router = Router()
 
-@catalog_router.message(F.text == "🛄Каталог")
-async def catalog(message: Message):
+
+class ItemFilter(StatesGroup):
+    type = State()
+    subtype = State()
+    
+
+@catalog_router.message((F.text == "🛄Каталог") | (F.text == "/catalog"))
+async def catalog(message: Message, state: FSMContext):
+    await state.clear()
+    await state.set_state(ItemFilter.type)
     await message.answer("Выберите категорию", reply_markup=keyboards.catalog)
+    
+    
+@catalog_router.callback_query(ItemFilter.type)
+async def get_subtypes(callback: CallbackQuery, state: FSMContext):
+    await state.update_data(type=callback.data)
+    if callback.data == "обувь":
+        await state.set_state(ItemFilter.subtype)
+        await callback.message.edit_text("Теперь выберите подтип товара", 
+                                      reply_markup=keyboards.subtype_shoes)
+    elif callback.data == "одежда":
+        await state.set_state(ItemFilter.subtype)
+        await callback.message.edit_text("Теперь выберите подтип товара", 
+                                      reply_markup=keyboards.subtype_clothes)
+    elif callback.data == "головные уборы":
+        await state.set_state(ItemFilter.subtype)
+        await callback.message.edit_text("Теперь выберите подтип товара", 
+                                      reply_markup=keyboards.subtype_headdress)
+        
+        
+@catalog_router.callback_query(ItemFilter.subtype)
+async def add_item_type(callback: CallbackQuery, state: FSMContext):
+    await state.update_data(subtype=callback.data)
+    data = await state.get_data()
+    if data["type"] == "обувь":
+        await get_shoes(callback, state)
+    elif data["type"] == "одежда":
+        await get_clothes(callback, state)
+    elif data["type"] == "головные уборы":
+        await get_headdress(callback, state)
+        
 
 
 @catalog_router.message(F.text == "⬅️Назад")
@@ -37,21 +77,28 @@ async def basket(message: Message):
         prev_cart = prev_cart.split(', ')
         for i in range(len(prev_cart)):
             item = await get_data_by_id(int(prev_cart[i]))
-            await message.answer_photo(item[6], caption=f'<b>#️⃣Код товара</b>: {item[0]}\n' +
-                                                        f'<b>🏷Тип</b>: {item[1]}\n' + 
-                                                        f'<b>🔤Название</b>: {item[2]}\n' +
-                                                        f'<b>🌐Бренд</b>: {item[3]}\n' + 
-                                                        f'<b>📝Описание</b>: {item[4]}\n' + 
-                                                        f'<b>💰Цена</b>: {item[5]}', parse_mode='HTML',
+            print(item)
+            await message.answer_photo(item[7], caption=f'<b>#️⃣Код товара</b>: {item[0]}\n' +
+                                                                        f'<b>🏷Тип</b>: {item[1]}\n' + 
+                                                                        f'<b>🔧Подтип</b>: {item[2]}\n' + 
+                                                                        f'<b>🔤Название</b>: {item[3]}\n' +
+                                                                        f'<b>🌐Бренд</b>: {item[4]}\n' + 
+                                                                        f'<b>📝Описание</b>: {item[5]}\n' +
+                                                                        f'<b>💰Цена</b>: {item[6]}', parse_mode='HTML',
                                                         reply_markup=keyboards.item_in_cart)
         await message.answer('Теперь вы можете оформить заказ', reply_markup=keyboards.cart)
 
     
     
 @catalog_router.callback_query(F.data == "обувь")
-async def get_shoes(callback: Message):
+async def get_shoes(callback: Message, state: FSMContext):
     await callback.answer("Вы выбрали каталог 'Обувь'")
-    data = await get_data_by_type("обувь")
+    filter_data = await state.get_data()
+    if filter_data["subtype"] == "nomatter":
+        data = await get_data_by_type(filter_data["type"])
+    else:
+        data = await get_item_by_type_subtype(filter_data["type"], filter_data["subtype"])
+        
     if data == []:
         await callback.message.answer("Пусто..")
     else:
@@ -60,19 +107,26 @@ async def get_shoes(callback: Message):
         await asyncio.sleep(1)
         for item in range(len(data)):
             await asyncio.sleep(0.3)
-            await callback.message.answer_photo(data[item][6], caption=f'<b>#️⃣Код товара</b>: {data[item][0]}\n' +
+            await callback.message.answer_photo(data[item][7], caption=f'<b>#️⃣Код товара</b>: {data[item][0]}\n' +
                                                                         f'<b>🏷Тип</b>: {data[item][1]}\n' + 
-                                                                        f'<b>🔤Название</b>: {data[item][2]}\n' +
-                                                                        f'<b>🌐Бренд</b>: {data[item][3]}\n' + 
-                                                                        f'<b>📝Описание</b>: {data[item][4]}\n' +
-                                                                        f'<b>💰Цена</b>: {data[item][5]}', parse_mode='HTML',
+                                                                        f'<b>🔧Подтип</b>: {data[item][2]}\n' + 
+                                                                        f'<b>🔤Название</b>: {data[item][3]}\n' +
+                                                                        f'<b>🌐Бренд</b>: {data[item][4]}\n' + 
+                                                                        f'<b>📝Описание</b>: {data[item][5]}\n' +
+                                                                        f'<b>💰Цена</b>: {data[item][6]}', parse_mode='HTML',
                                                                         reply_markup=keyboards.item)
+        await state.clear()
 
     
 @catalog_router.callback_query(F.data == "одежда")
-async def get_clothes(callback: Message):
+async def get_clothes(callback: Message, state: FSMContext):
     await callback.answer("Вы выбрали каталог 'Одежда'")
-    data = await get_data_by_type("одежда")
+    filter_data = await state.get_data()
+    if filter_data["subtype"] == "nomatter":
+        data = await get_data_by_type(filter_data["type"])
+    else:
+        data = await get_item_by_type_subtype(filter_data["type"], filter_data["subtype"])
+        
     if data == []:
         await callback.message.answer("Пусто..")
     else:
@@ -81,20 +135,27 @@ async def get_clothes(callback: Message):
         await asyncio.sleep(1)
         for item in range(len(data)):
             await asyncio.sleep(0.3)
-            await callback.message.answer_photo(data[item][6], caption=f'<b>#️⃣Код товара</b>: {data[item][0]}\n' +
+            await callback.message.answer_photo(data[item][7], caption=f'<b>#️⃣Код товара</b>: {data[item][0]}\n' +
                                                                         f'<b>🏷Тип</b>: {data[item][1]}\n' + 
-                                                                        f'<b>🔤Название</b>: {data[item][2]}\n' +
-                                                                        f'<b>🌐Бренд</b>: {data[item][3]}\n' + 
-                                                                        f'<b>📝Описание</b>: {data[item][4]}\n' +
-                                                                        f'<b>💰Цена</b>: {data[item][5]}', parse_mode='HTML',
+                                                                        f'<b>🔧Подтип</b>: {data[item][2]}\n' + 
+                                                                        f'<b>🔤Название</b>: {data[item][3]}\n' +
+                                                                        f'<b>🌐Бренд</b>: {data[item][4]}\n' + 
+                                                                        f'<b>📝Описание</b>: {data[item][5]}\n' +
+                                                                        f'<b>💰Цена</b>: {data[item][6]}', parse_mode='HTML',
                                                                         reply_markup=keyboards.item)
+        await state.clear()
         
     
     
 @catalog_router.callback_query(F.data == "головные уборы")
-async def get_headdress(callback: Message):
+async def get_headdress(callback: Message, state: FSMContext):
     await callback.answer("Вы выбрали каталог 'Головные уборы'")
-    data = await get_data_by_type("головные уборы")
+    filter_data = await state.get_data()
+    if filter_data["subtype"] == "nomatter":
+        data = await get_data_by_type(filter_data["type"])
+    else:
+        data = await get_item_by_type_subtype(filter_data["type"], filter_data["subtype"])
+        
     if data == []:
         await callback.message.answer("Пусто..")
     else:
@@ -103,13 +164,15 @@ async def get_headdress(callback: Message):
         await asyncio.sleep(1)
         for item in range(len(data)):
             await asyncio.sleep(0.3)
-            await callback.message.answer_photo(data[item][6], caption=f'<b>#️⃣Код товара</b>: {data[item][0]}\n' +
+            await callback.message.answer_photo(data[item][7], caption=f'<b>#️⃣Код товара</b>: {data[item][0]}\n' +
                                                                         f'<b>🏷Тип</b>: {data[item][1]}\n' + 
-                                                                        f'<b>🔤Название</b>: {data[item][2]}\n' +
-                                                                        f'<b>🌐Бренд</b>: {data[item][3]}\n' + 
-                                                                        f'<b>📝Описание</b>: {data[item][4]}\n' +
-                                                                        f'<b>💰Цена</b>: {data[item][5]}', parse_mode='HTML',
+                                                                        f'<b>🔧Подтип</b>: {data[item][2]}\n' + 
+                                                                        f'<b>🔤Название</b>: {data[item][3]}\n' +
+                                                                        f'<b>🌐Бренд</b>: {data[item][4]}\n' + 
+                                                                        f'<b>📝Описание</b>: {data[item][5]}\n' +
+                                                                        f'<b>💰Цена</b>: {data[item][6]}', parse_mode='HTML',
                                                                         reply_markup=keyboards.item)
+        await state.clear()
             
             
 async def get_id_by_caption(caption):
