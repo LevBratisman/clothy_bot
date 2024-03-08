@@ -105,10 +105,15 @@ async def back_to_manu(message: Message, state: FSMContext):
             await message.answer("Товар был успешно удален!")
             data = await get_users_db()
             for i in range(len(data)):
-                cart = data[i][4].split(', ')
-                if message.text in cart:
-                    cart.remove(message.text)
-                    await update_cart_id(data[i][1], ', '.join(cart))
+                if data[i][4] is not None:
+                    cart = data[i][4].split(', ')
+                    if message.text in cart:
+                        cart.remove(message.text)
+                        if len(cart) == 0:
+                            cart = None
+                            await update_cart_id(data[i][1], cart)
+                        else:
+                            await update_cart_id(data[i][1], ', '.join(cart))
             await message.answer("Товар был удален из корзин пользователей!")
             await state.clear()
         
